@@ -70,9 +70,18 @@ The API call is used to determine if 2 face images belong to the same person
 	- appkey
 
 * **Request Body**
+	 - To match user photo with the face in an ID card 
+	 	- selfie - jpeg, png or tiff image
+	 	- id - jpeg, png or tiff image 
+	 - To match user photo with the Base64 face string provided by the documents api 
+	 	- selfie - jpeg, png or tiff image
+	 	- idFaceString - Base64 string
 
-    - type : use '*id*' for Selfie to ID card photo matching and '*selfie*' for Selfie to Selfie matching
-	- image1, image2
+	 - To match one user photo with another user photo:
+	 	- image1 - jpeg, png or tiff image
+	 	- image2 - jpeg, png or tiff image
+	 	- type - use '*selfie*' for Selfie to Selfie matching
+	 
 
 ## Response Structure
 
@@ -101,47 +110,78 @@ The API call is used to determine if 2 face images belong to the same person
 		}
 		```
 
-
-* **Request Errors:** Please note that these errors are applicable only for API integration and don't happen when the SDK is used.
-
-	There are 3 types of request errors and `HTTP Status Code 400` is returned in all 3 cases:
-
-	- No Image or only one image input
-
+* **Error Response:**
+	* **Face detection failed**
+		* Face not detected in selfie for a 'Selfie - ID match' API Call
+			
+			```
 			{
 			    "status": "failure",
 			    "statusCode": "400",
-			    "error": "image1 and image2 are required files"
+			    "error": "Face not detected in Selfie image"
 			}
-
-	- 'type' not specified
-
+			```
+		* Face not detected in ID for a 'Selfie - ID match' API Call
+			
+			```
 			{
 			    "status": "failure",
 			    "statusCode": "400",
-			    "error": "type is a required parameter, supported types are ['id', 'selfie']"
+			    "error": "Face not detected in ID image"
 			}
-
-	- Larger than allowed image input
-
+			```
+		* Face not detected in one of the selfies in 'Selfie - Selfie match' API Call
+			
+			```
 			{
-			  "status": "failure",
-			  "statusCode": "400",
-			  "error": "image size cannot be greater than 6MB"
+			    "status": "failure",
+			    "statusCode": "400",
+			    "error": "Face not detected in one or more images"
 			}
+			```
+	
+	* **Request Errors:** Please note that these errors are applicable only for API integration and don't happen when the SDK is used.
+	
+		There are 3 types of request errors and `HTTP Status Code 400` is returned in all 3 cases:
+	
+		- No Image or only one image input
+	
+				{
+				    "status": "failure",
+				    "statusCode": "400",
+				    "error": "image1 and image2 are required files"
+				}
+	
+		- 'type' not specified
+	
+				{
+				    "status": "failure",
+				    "statusCode": "400",
+				    "error": "type is a required parameter, supported types are ['id', 'selfie']"
+				}
+	
+		- Larger than allowed image input
+	
+				{
+				  "status": "failure",
+				  "statusCode": "400",
+				  "error": "image size cannot be greater than 6MB"
+				}
+	
+		All error messages follow the same syntax with the statusCode, status and error(string) being part of the body.
 
-All error messages follow the same syntax with the statusCode, status and error(string) being part of the body.
-
-* **Server Errors**
-We try our best to avoid these errors, but if by chance they do occur the response code will be 5xx.
-
-	- Form parse error or bad form-data. If the following happens, please make sure the form data is correctly set.
+	* **Server Errors**
+	We try our best to avoid these errors, but if by chance they do occur the response code will be 5xx.
+	
+		- Form parse error or bad form-data. If the following happens, please make sure the form data is correctly set.
 		 
-		  {
+		 ``` 
+		 {
 		       "status": "failure",
 		       "statusCode": "500",
 		       "error": "upload error"
-		   }
+		  }
+		 ```
 
 
 
@@ -149,7 +189,7 @@ We try our best to avoid these errors, but if by chance they do occur the respon
 
 These optional params are used to facilitate better debugging of the system. 
 
-`clientId` is a unique identifier that is assigned to the end customer by the API user. This would need to be passed in the request body. And the parameter, would be the same for the different API calls made for the same customer.
+`transactionId` is a unique identifier that is assigned to the end customer by the API user. This would need to be passed in the request body. And the parameter, would be the same for the different API calls made for the same customer.
 
 By default, the input images are not stored by HyperVerge systems, however, if the user sets the optional parameter `dataLogging` to string value "yes", then the images will be stored and the requestId can be 
 provided to HyperVerge to check the uploaded image incase of an inaccurate extraction.
